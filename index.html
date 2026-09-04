@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUOS Intelligence</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0F0F10;
+            color: #F5F7FA;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(26,26,28,0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .chat-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            color: #F5F7FA;
+        }
+        .chat-header h1 span {
+            color: #0066FF;
+        }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #0066FF;
+            color: white;
+            margin-left: auto;
+        }
+        .ai-message {
+            background: rgba(255,255,255,0.1);
+            color: #F5F7FA;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            background: rgba(26,26,28,0.8);
+            color: #F5F7FA;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        .chat-input button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #0066FF;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .chat-input button:hover {
+            background: #0052cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>QUOS<span>Intelligence</span></h1>
+            <div style="color: #A7ADB8; font-size: 14px;">Powered by QuantumQ</div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai-message">Hi! I am QuantumQ. Tell me what to build!</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Build me a website for my pizza store..." />
+            <button id="sendBtn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const sendBtn = document.getElementById('sendBtn');
+        const userInput = document.getElementById('userInput');
+        const chatMessages = document.getElementById('chatMessages');
+
+        async function processMessage(message) {
+            // Send to backend
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                body: JSON.stringify({ message }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            return data.response;
+        }
+
+        sendBtn.onclick = async () => {
+            const message = userInput.value;
+            if (message.trim() === '') return;
+
+            // Add user message
+            chatMessages.innerHTML += `<div class="message user-message">${message}</div>`;
+            userInput.value = '';
+
+            // Get AI response
+            const response = await processMessage(message);
+
+            // Add AI message
+            chatMessages.innerHTML += `<div class="message ai-message">${response}</div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.onclick();
+            }
+        });
+    </script>
+</body>
+</html>
